@@ -39,7 +39,7 @@ TEST_CASES = [
 ]
 
 # A list of all algorithm names  need to test
-ALGORITHMS_TO_TEST: list[AlgorithmName] = ["bubble", "selection", "quick", "merge"]
+ALGORITHMS_TO_TEST: list[AlgorithmName] = ["bubble", "selection", "quick", "merge" , "shell"]
 
 # --- 2. Create the Test Functions ---
 
