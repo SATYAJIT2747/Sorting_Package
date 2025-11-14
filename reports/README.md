@@ -107,7 +107,7 @@ python main.py input.txt -a bubble > output.txt
 ## Git & Submission (Q3)
 
 This project was developed using Git, as required.
-The main branch  contains the complete, working implementation for Q3.
+The master branch  contains the complete, working implementation for Q3.
 
 ---
 
