@@ -4,6 +4,7 @@
 
 # Sorting_Package (Assignment 3 - Q3)
 
+
 This project is a Python package created for Q3 of the SSD Assignment 3. It provides a modular and extensible framework for sorting lists of integers using various algorithms.
 
 ## Features
@@ -27,8 +28,8 @@ Sorting_Package/
 ├── src/                  (The main Python package source)
 │   ├── __init__.py
 │   ├── base_sorter.py    (The ABC "blueprint")
-│   ├── controller.py      (The main Sorter "factory" class)
-│   └── sorters.py         (All algorithm implementations)
+│   ├── controller.py     (The main Sorter "factory" class)
+│   └── sorters.py        (All algorithm implementations)
 ├── test/                 (The Pytest package)
 │   ├── __init__.py
 │   └── test_sorters.py   (All unit tests)
@@ -38,30 +39,54 @@ Sorting_Package/
 
 ---
 
-## How to Run
+## Design Rationale
 
-### 1. Running the Tests (Q3.3)
+The code was designed using a modular, extensible, and decoupled approach, following modern software design patterns.
 
-This is the best way to verify that all sorting algorithms are working correctly.
+### The "Blueprint" 
 
-**Setup:**
+`src/base_sorter.py` defines an Abstract Base Class (ABC) called `BaseSorter`.
 
-```
-pip install pytest
-```
+* This class establishes a **contract** by defining an `@abstractmethod` called `sort()`.
+* This guarantees that any new algorithm class we create must have a `sort()` method, ensuring a consistent interface.
 
-**Run Tests:**
-From the `Sorting_Package` root folder, simply run:
+### The "Implementations" 
 
-```
-pytest
-```
+`src/sorters.py` holds all the concrete algorithm classes (`BubbleSorter`, `QuickSorter`, etc.).
 
-You should see all 7 tests pass (1 test function that runs 4 algorithms, plus 3 error-case tests).
+* Each class inherits from `BaseSorter`.
+* Each provides its own implementation of `sort()`, fulfilling the contract.
+
+### The "Controller" 
+
+`src/controller.py` contains the `Sorter` class, which is the main public face of the package.
+
+* It follows a **Factory Pattern**.
+* Instead of knowing BubbleSorter vs QuickSorter, the user interacts with `Sorter`.
+* `Sorter` holds a dictionary (`self._algorithms`) mapping algorithm names (`"bubble"`) to the classes.
+* When the user calls `sort_list(algorithm_name="bubble")`, the controller:
+
+  * Finds `"bubble"` in the dictionary,
+  * Instantiates `BubbleSorter`,
+  * Calls its `sort()` method.
+
+### Safety and Constraints 
+
+* **Non-Destructive :**
+  All sorters (except Merge Sort, which does it naturally) immediately call `data.copy()` to create a `new_data` list.
+
+* **Validation :**
+  The controller validates:
+
+  * data is a list
+  * all items are integers
+  * list length ≤ 200,000
 
 ---
 
-### 2. Running the Demo (`main.py`) 
+## How to Run
+
+### 1. Running the Demo (`main.py`)
 
 The `main.py` script is a command-line tool to showcase the sorter. It reads numbers from `input.txt` and prints the sorted list.
 
@@ -71,43 +96,87 @@ The `main.py` script is a command-line tool to showcase the sorter. It reads num
 python main.py <input_file> -a <algorithm_name> -o <order>
 ```
 
-* **algorithm_name:** `bubble`, `selection`, `quick`, `merge`
-* **order:** `asc` (default) or `desc`
+* `algorithm_name`: `bubble`, `selection`, `quick`, `merge`
+* `order`: `asc` (default) or `desc`
 
 **Examples:**
 
-**Quick Sort (Ascending):**
-
 ```
 python main.py input.txt -a quick
-```
-
-**Merge Sort (Descending):**
-
-```
 python main.py input.txt -a merge -o desc
-```
-
-**Bubble Sort (Redirecting Output):**
-As required by the prompt, the output can be redirected:
-
-```
 python main.py input.txt -a bubble > output.txt
 ```
+
+(Last one redirects output as required.)
+
+---
+
+## Testing Strategy 
+
+A dedicated test package (`test/`) was created to ensure correctness of all algorithms and error handling.
+
+### 1. Test Design
+
+`test/test_sorters.py` uses pytest.
+
+* A single test function `test_all_algorithms` tests all four sorters.
+* Achieved using:
+
+```
+@pytest.mark.parametrize("algo", ["bubble", "selection", "quick", "merge"])
+```
+
+### 2. Test Case Development
+
+Covers standard, edge, and special cases:
+
+* **Standard:**
+  `[5, 2, 9, 1, 5, 6]`
+* **Edge Cases:**
+  `[]`, `[1]`
+* **Pre-Sorted:**
+  `[1, 2, 3, 4]`, `[4, 3, 2, 1]`
+* **Special:**
+  `[2, 2, 2, 2]`
+
+### 3. Test Verification
+
+For each algorithm:
+
+1. Ascending sort matches expected.
+2. Descending sort matches expected reverse-sorted.
+3. Original input list remains unchanged.
+
+### 4. Error Handling Tests
+
+Additional tests:
+
+* `test_invalid_algorithm`
+* `test_invalid_data_type`
+* `test_list_size_limit`
+
+These verify correct raising of `ValueError` or `TypeError`.
+
+### To Run Tests
+
+```
+pip install pytest
+pytest
+```
+
+You should see all 7 tests pass.
 
 ---
 
 ## Assumptions
 
 * **`main.py` Input:**
-  The demo script is designed to read a simple, space-separated list of integers from a text file.
+  The demo script reads space-separated integers from a text file.
 
 ---
 
 ## Git & Submission (Q3)
 
 This project was developed using Git, as required.
-The master branch  contains the complete, working implementation for Q3.
-
----
+The master branch contains the complete, working implementation for Q3.
 
